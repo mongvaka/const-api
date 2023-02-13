@@ -18,9 +18,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'sshDeploy', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'sshKeygen', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
                         def remote = [:]
-                        remote.name = 'const-api'
+                        remote.name = 'readyidc'
                         remote.host = '203.159.93.42'
                         // remote.port = 22
                         remote.allowAnyHosts = true
