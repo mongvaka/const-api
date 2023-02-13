@@ -26,7 +26,7 @@ pipeline {
                         remote.allowAnyHosts = true
                         remote.user = userName
                         remote.identityFile = identity
-
+                        remote.password = 'p3N0*cgjq1d1'
                         sshCommand remote: remote, command: "docker pull mongmang/const-api:latest"
                         sshCommand remote: remote, command: "docker compose stop"
                         sshCommand remote: remote, command: "docker compose up"
