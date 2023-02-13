@@ -20,8 +20,8 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshDeploy', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
                         def remote = [:]
-                        remote.name = "const-api"
-                        remote.host = "203.159.93.42"
+                        remote.name = 'const-api'
+                        remote.host = '203.159.93.42'
                         // remote.port = 22
                         remote.allowAnyHosts = true
                         remote.user = userName
