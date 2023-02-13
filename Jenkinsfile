@@ -16,9 +16,6 @@ pipeline {
                 }
         }
         stage('Deploy') {
-            when{
-                branch 'master'
-            }
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'sshDeploy', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
