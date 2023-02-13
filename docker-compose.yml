@@ -14,46 +14,41 @@ services:
 #   volumes:
 #    - ./:/home/node/app
 #    - node_modules:/home/node/app/node_modules
- db:
-  image: postgres:14.3
-  # expose:
-  #  - 5432
-  ports:
-   - 5432:5432
-  volumes:
-   - postgres_data:/var/lib/postgresql/data
-  environment:
-   PGDATA: /var/postgres_data 
-   POSTGRES_USER: postgres
-   POSTGRES_PASSWORD: password
-   POSTGRES_DB: postgres
-  # networks:
-  #  - nesjs-network 
- api:
-  build:
-    context: ./
-    dockerfile: Dockerfile
-  depends_on:
-   - db
-  environment:
-   POSTGRES_HOST: db
-   NODE_ENV: development
-   POSTGRES_PORT: 5432
-   POSTGRES_USERNAME: postgres
-   POSTGRES_PASSWORD: password
-   POSTGRES_DATABASE: postgres
-   PORT: 3000
-   JWT_SECRET_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyIiwidXNlcm5hbWUiOiJURVNUQ1JFQVRFNSIsImZpcnN0TmFtZSI6IlRlc3RlciIsImxhc3ROYW1lIjoiVGVzdGVyIiwidHlwZUNvZGUiOiIiLCJkZXBhcnRtZW50Q29kZSI6IiIsImlhdCI6MTY1NDc0MzI1NywiZXhwIjoxNjU1MzQ4MDU3fQ.mBz_ugVyFBcdN9F1KYzBkq36sBtQrkFmTDNHiU9pm84
-   HASH_SALT: 56758
-   SYNC_DATABASE: true
-  ports:
-   - "3000:3000"
-  volumes:
-   - node_modules:/home/node/app/node_modules
-  # networks:
-  #  - nesjs-network
+  db:
+    image: postgres:14.3
+    # expose:
+    #  - 5432
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - PGDATA=/var/postgres_data 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgres
+  api:
+    image: mongmang/const-api:latest
+    # build:
+    #   context: ./
+    #   dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=db
+      - POSTGRES_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - POSTGRES_DATABASE=postgres
+      - PORT=3000
+      - JWT_SECRET_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyIiwidXNlcm5hbWUiOiJURVNUQ1JFQVRFNSIsImZpcnN0TmFtZSI6IlRlc3RlciIsImxhc3ROYW1lIjoiVGVzdGVyIiwidHlwZUNvZGUiOiIiLCJkZXBhcnRtZW50Q29kZSI6IiIsImlhdCI6MTY1NDc0MzI1NywiZXhwIjoxNjU1MzQ4MDU3fQ.mBz_ugVyFBcdN9F1KYzBkq36sBtQrkFmTDNHiU9pm84
+      - HASH_SALT=56758
+      - SYNC_DATABASE=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - node_modules:/home/node/app/node_modules
 volumes:
- node_modules:
- postgres_data:
-networks:
- nesjs-network:
+  node_modules:
+  postgres_data:

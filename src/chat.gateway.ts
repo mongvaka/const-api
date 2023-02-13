@@ -5,24 +5,15 @@ export function getUserDeviceRoom(userId: string, deviceId: string) {
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection,OnGatewayDisconnect,OnGatewayInit{
   handleDisconnect(client: any) {
-    client.leave(
-      getUserDeviceRoom(
-        client.user.id,
-        client.handshake.query.deviceId.toString(),
-      ),
-    );
+
     
   }
   afterInit(server: any) {
     console.log('afterInit :',server);
   }
   handleConnection(client: any, ...args: any[]) {
-    client.join(
-      getUserDeviceRoom(
-        client.user.id,
-        client.handshake.query.deviceId.toString(),
-      ),
-    );
+    console.log('Connected',client)
+
 
   }
 
