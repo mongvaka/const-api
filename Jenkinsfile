@@ -17,7 +17,7 @@ pipeline {
         }
         stage('Deploy') {
             when{
-                branch 'develop'
+                branch 'master'
             }
             steps {
                 script {
