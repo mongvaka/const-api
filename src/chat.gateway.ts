@@ -23,8 +23,6 @@ export class ChatGateway implements OnGatewayConnection,OnGatewayDisconnect,OnGa
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: string): void {
     console.log(message);
-    
-    this.server.emit('message', message+'fromserver');
-    this.server.emit('hola', message+'holar');
+    this.server.emit('hola', {header:'headerText',detail:'detailText'});
   }
 }
