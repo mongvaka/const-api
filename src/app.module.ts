@@ -14,7 +14,8 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatGateway } from './chat.gateway';
+// import { ChatGateway } from './chat.gateway';
+import { EspModule } from './iot/esp.module';
 
 @Module({
   imports: [
@@ -51,8 +52,13 @@ import { ChatGateway } from './chat.gateway';
     ShopInfoModule,
     GeneralSettingModule,
     NotificationsModule,
-    UsersModule  ],
+    UsersModule ,
+    EspModule
+  ],
   controllers: [AppController],
-  providers: [AppService,ChatGateway],
+  providers: [AppService
+    ,
+    // ChatGateway
+  ],
 })
 export class AppModule {}

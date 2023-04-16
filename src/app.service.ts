@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
+// import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class AppService {
   constructor(
+    // private readonly socketGateway:ChatGateway
   ){
 
   }
-  emitMessage(channel: string, message: string): string {
-     return 'Ok'
-  }
+  // emitMessage(pin: number, status: number): string {
+  //   this.socketGateway.server.emit('hola', {pin,status});
+  //    return 'Ok'
+  // }
   getHello(): string {
     return 'Hello World test ssh deploy hello';
   }
