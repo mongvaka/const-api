@@ -45,42 +45,15 @@ const valueToBoolean = (value: any) => {
   return undefined;
 };
 export class BasicsearchDto {
-  @ApiPropertyOptional({ type: Boolean })
-  @TransformBoolean()
-  @IsBoolean()
-  @IsOptional()
-  active?: boolean;
-
-  @ApiPropertyOptional({ type: Boolean, default: false })
-  @TransformBoolean()
-  @IsBoolean()
-  @IsOptional()
-  deleted?: boolean;
-  @ApiPropertyOptional()
-  @IsOptional()
-  // @IsNumber()
-  text?: string;
-  @ApiPropertyOptional()
-  @IsOptional()
-  // @IsNumber()
-  page?: number;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  query?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
-
+  offset:number
+  limit:number
+  sortBy:string
+  last:boolean
+  totalElements:number
+  totalPages:number
   @ApiPropertyOptional({ type: 'enum', enum: OrderBy })
   @IsOptional()
   @IsString()
   @IsIn(['DESC', 'ASC'])
   orderBy?: 'DESC' | 'ASC';
-  @ApiPropertyOptional()
-  @IsOptional()
-  size: number;
 }

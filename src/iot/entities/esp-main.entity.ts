@@ -4,7 +4,6 @@ import { Column, Entity } from 'typeorm';
 export class EspMain extends BasicData {
   @Column({ type: 'varchar', nullable: true })
   key: string;
-
   @Column({ type: 'bigint', nullable: true })
   ownerId: number;
 

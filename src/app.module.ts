@@ -1,15 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CategoriesModule } from './categories/categories.module';
-import { ProductsModule } from './products/products.module';
-import { OrdersModule } from './orders/orders.module';
-import { DeliverysModule } from './deliverys/deliverys.module';
-import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
-import { DeliveryFeeModule } from './delivery-fee/delivery-fee.module';
-import { ShopInfoModule } from './shop-info/shop-info.module';
-import { GeneralSettingModule } from './general-setting/general-setting.module';
-import { NotificationsModule } from './notifications/notifications.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
@@ -43,15 +34,6 @@ import { EspModule } from './iot/esp.module';
         };
       },
     }),
-    CategoriesModule,
-    ProductsModule,
-    OrdersModule,
-    DeliverysModule,
-    PaymentMethodsModule,
-    DeliveryFeeModule,
-    ShopInfoModule,
-    GeneralSettingModule,
-    NotificationsModule,
     UsersModule ,
     EspModule
   ],
