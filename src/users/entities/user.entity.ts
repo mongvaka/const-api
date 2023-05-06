@@ -1,17 +1,17 @@
 import { BasicData } from 'src/shared/basics/basic-data';
-import { Column } from 'typeorm';
-
+import { Column, Entity } from 'typeorm';
+@Entity()
 export class User extends BasicData {
-  @Column({ type: 'bigint', nullable: false })
-  user: number;
+  @Column({ type: 'text', nullable: false })
+  email: string;
   @Column({ type: 'text', nullable: false })
   password: string;
-  @Column({ type: 'text', nullable: false })
-  userType: string;
   @Column({ type: 'text', nullable: true })
-  token: string;
+  userType?: string;
   @Column({ type: 'text', nullable: true })
-  firstName: string;
+  token?: string;
   @Column({ type: 'text', nullable: true })
-  lastName: string;
+  firstName?: string;
+  @Column({ type: 'text', nullable: true })
+  lastName?: string;
 }

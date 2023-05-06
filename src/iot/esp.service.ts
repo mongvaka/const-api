@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 // import { ChatGateway } from 'src/chat.gateway';
-import { EspChildSearchDto, EspRegisterDto, SwitchDto, SwitchStatusDto } from './dto/esp-register.dto';
+import { ChildDto, CreateSheduleDto, DeleteSheduleDto, EspChildSearchDto, EspRegisterDto, SwitchDto, SwitchStatusDto } from './dto/esp-register.dto';
 import { EspMain } from './entities/esp-main.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
@@ -8,18 +8,56 @@ import { EspType } from 'src/shared/constans/enum-constans';
 import { EspChildren } from './entities/esp-children.entity';
 import { WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
 import { BasicResponseDto, Pageable } from 'src/shared/basics/basic-response.dto';
+import { EspSchedule } from './entities/esp-schedule.entity';
 
 @Injectable()
 @WebSocketGateway()
 export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGatewayInit {
+  async deleteSchedule(dto: DeleteSheduleDto) {
+    return this.espChildrenRepository.remove(
+     await this.espChildrenRepository.findOne({where:{id:dto.id}})
+    )
+  }
   constructor(
     @InjectRepository(EspMain)
     private readonly espMainRepository:Repository<EspMain>,
     @InjectRepository(EspChildren)
     private readonly espChildrenRepository:Repository<EspChildren>,
+    @InjectRepository(EspSchedule)
+    private readonly espScheduleRepository:Repository<EspSchedule>,
   ){
 
   }
+  async createSchedule(dto: CreateSheduleDto) {
+    console.log(dto);
+    
+    const modelMain = await this.espChildrenRepository.findOne({where:{id:dto.id}})
+    modelMain.isManual = dto.isManual
+    modelMain.name = dto.name
+    modelMain.schedule = dto.schedule.map((m)=>{
+        return {
+          startTime: m.startTime,
+          endTime: m.endTime
+        } 
+    })
+    return this.espChildrenRepository.save(modelMain)
+  }
+  async childById(dto: ChildDto) {
+    return this.espChildrenRepository.findOne({relations:['schedule'],select:{
+      name:true,
+      id:true,
+      status:true,
+      isManual:true,
+      schedule:{
+        id:true,
+        startTime:true,
+        endTime:true
+      }
+    },where:{
+      id:dto.id
+    }})
+  }
+
   async switchStatus(dto: SwitchStatusDto) {
     const model = await this.espChildrenRepository.findOne({where:{id:dto.id,pin:dto.pin}})
     model.status = dto.status
@@ -112,7 +150,6 @@ export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGat
     return 'Hello World test ssh deploy hello';
   }
   afterInit(server: any) {
-    console.log('afterInit :',server);
   }
   handleConnection(client: any, ...args: any[]) {
 
@@ -124,7 +161,6 @@ export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGat
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: string): void {
-    console.log(message);
     this.server.emit('hola', {header:'headerText',detail:'detailText'});
   }
 }

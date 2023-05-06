@@ -8,7 +8,7 @@ import {
 
 export class BasicData {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  id?: number;
   @Column({ default: true })
   active?: boolean;
 

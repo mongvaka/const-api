@@ -30,3 +30,30 @@ export class SwitchStatusDto{
      status:number;
      key:string;
 }
+export class ChildDto{
+    @ApiProperty({type:Number})
+    id:number;
+
+}
+export class SheduleDto{
+    @ApiProperty({type:Number})
+    id:number;
+    @ApiProperty({type:String})
+    startTime:string;
+    @ApiProperty({type:String})
+    endTime:string;
+}
+export class CreateSheduleDto{
+    @ApiProperty({type:Number})
+    id:number;
+    @ApiProperty({type:Boolean})
+    isManual:boolean;
+    @ApiProperty({type:String})
+    name:string;
+    @ApiProperty({type:[SheduleDto]})
+    schedule:SheduleDto[];
+}
+export class DeleteSheduleDto{
+    @ApiProperty({type:Number})
+    id:number;
+}
