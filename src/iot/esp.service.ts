@@ -131,7 +131,7 @@ export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGat
   getChildren(type: EspType,id:number):EspChildren[] {
     switch (type){
       case EspType.V1:
-      return [{isManual:true,mainId:id,pin:4,status:1,name:'switch1',id:undefined},{isManual:true,mainId:id,pin:5,status:1,name:'switch2',id:undefined}]
+      return [{isManual:true,mainId:id,pin:4,status:1,name:'switch1',id:undefined}]
       default:
         return[]
     }

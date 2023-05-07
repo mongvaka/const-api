@@ -8,17 +8,23 @@ import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
+  async getUser(dto: GetUserDto) {
+    return this.userRepository.findOne({select:{
+      lastName:true,
+      firstName:true,
+      email:true,
+    },where:{id:dto.id}})
+  }
   async login(dto: LoginDto) {    
     const user = await this.userRepository.findOne({select:{
       id:true,
       token:true,
       password:true
-    },where:{email:dto.email}})
-    console.log('user',user);
-    
+    },where:{email:dto.email}})    
     if (user) {
       const match = await bcrypt.compare(dto.password, user.password);
       if (match) {
@@ -59,5 +65,6 @@ export class UsersService {
       token:token
     }
   }
+
 
 }
