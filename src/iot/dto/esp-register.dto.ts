@@ -4,7 +4,8 @@ import { EspType } from "src/shared/constans/enum-constans";
 export class EspChildSearchDto extends BasicsearchDto {
     @ApiProperty({type:String})
     name:string;
-
+    @ApiProperty({type:Number})
+    ownerId:number;
 }
 export class EspRegisterDto {
     @ApiProperty({type:String})

@@ -66,7 +66,8 @@ export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGat
     return true
   }
   async listEspChild(dto: EspChildSearchDto) {
-    dto.name = ''
+    console.log(dto);
+    
     const data = await this.espChildrenRepository.find({
     relations:['main'],
     select:{
@@ -81,8 +82,7 @@ export class EspService implements OnGatewayConnection,OnGatewayDisconnect,OnGat
       },
     },
     where:{
-      name:Like(`%${dto.name}%`),
-      main:{ownerId:2}
+      main:{ownerId:dto.ownerId}
     }});
     const result = new BasicResponseDto();
     const count = data.length

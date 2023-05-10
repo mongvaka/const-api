@@ -23,9 +23,11 @@ export class UsersService {
     const user = await this.userRepository.findOne({select:{
       id:true,
       token:true,
-      password:true
+      password:true,email:true
     },where:{email:dto.email}})    
     if (user) {
+      console.log('user',user);
+      
       const match = await bcrypt.compare(dto.password, user.password);
       if (match) {
         const payload = { id:user.id };
