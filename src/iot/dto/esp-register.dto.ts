@@ -1,4 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsArray, IsNotEmpty, IsNumber } from "class-validator";
 import { BasicsearchDto } from "src/shared/basics/basic-search.dto";
 import { EspType } from "src/shared/constans/enum-constans";
 export class EspChildSearchDto extends BasicsearchDto {
@@ -57,4 +58,23 @@ export class CreateSheduleDto{
 export class DeleteSheduleDto{
     @ApiProperty({type:Number})
     id:number;
+}
+export class PreActivateDto{
+    @ApiProperty({type:[String]})
+    @IsArray()
+    @IsNotEmpty()
+    keys:string[]
+}
+export class ActivateDto{
+    @ApiProperty({type:String})
+    @IsNotEmpty()
+    key:string
+    @ApiPropertyOptional({type:String})
+    email?:string
+    @ApiPropertyOptional({type:String})
+    password?:string
+    @ApiPropertyOptional({type:Number})
+    @IsNotEmpty()
+    @IsNumber()
+    ownerId:number
 }

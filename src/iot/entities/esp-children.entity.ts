@@ -1,9 +1,9 @@
-import { BasicData } from 'src/shared/basics/basic-data';
+import { BasicChildrentData, BasicData } from 'src/shared/basics/basic-data';
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { EspMain } from './esp-main.entity';
 import { EspSchedule } from './esp-schedule.entity';
 @Entity()
-export class EspChildren extends BasicData {
+export class EspChildren extends BasicChildrentData {
   @Column({ type: 'bigint', nullable: true })
   mainId: number;
   @ManyToOne(type=> EspMain, type=> type.id)

@@ -5,15 +5,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt-strategy';
+import { AddressDelivery } from './entities/address-delivery.entity';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,AddressDelivery]),
     JwtModule.register({
       secret: 'clEciwpf4p',
     })
   ],
   controllers: [UsersController],
-  providers: [UsersService,JwtStrategy]
+  providers: [UsersService,JwtStrategy],
+  exports:[UsersService,JwtStrategy]
 })
 export class UsersModule {}

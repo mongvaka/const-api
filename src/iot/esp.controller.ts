@@ -1,10 +1,9 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { EspService } from './esp.service';
-import { ChildDto, CreateSheduleDto, DeleteSheduleDto, EspChildSearchDto, EspRegisterDto, SwitchDto, SwitchStatusDto } from './dto/esp-register.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { ActivateDto, ChildDto, CreateSheduleDto, DeleteSheduleDto, EspChildSearchDto, EspRegisterDto, PreActivateDto, SwitchDto, SwitchStatusDto } from './dto/esp-register.dto';
 import { JwtAuthGuard } from 'src/users/jwt-auth.guard';
-import { get } from 'http';
+@ApiTags('Esp')
 @UseGuards(JwtAuthGuard)
 @Controller('esp')
 @ApiBearerAuth()
@@ -37,5 +36,13 @@ export class EspController {
   @Post('switch-status')
   switchStatus(@Body() dto: SwitchStatusDto) {
     return this.espService.switchStatus(dto);
+  }
+  @Post('pre-activate')
+  preActivate(@Body() dto: PreActivateDto) {
+    return this.espService.preActivate(dto);
+  }
+  @Post('activate')
+  activate(@Body() dto: ActivateDto) {
+    return this.espService.activate(dto);
   }
 }

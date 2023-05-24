@@ -1,11 +1,11 @@
-import { BasicData } from 'src/shared/basics/basic-data';
+import { BasicChildrentData, BasicData } from 'src/shared/basics/basic-data';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { EspChildren } from './esp-children.entity';
 @Entity()
-export class EspSchedule extends BasicData {
+export class EspSchedule extends BasicChildrentData {
   @Column({ type: 'bigint', nullable: true })
   childrentId?: number;
-  @ManyToOne(type=> EspChildren,espChildrent => espChildrent.id,{onDelete:'CASCADE',onUpdate:'CASCADE'})
+  @ManyToOne(type=> EspChildren,espChildrent => espChildrent.id,{onDelete:'CASCADE'})
   childrent?:EspChildren
   @Column({ type: 'time', nullable: false })
   startTime: string;

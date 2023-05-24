@@ -6,4 +6,5 @@ export class BasicDto {
 
   @ApiProperty()
   deleted?: boolean;
+  createBy?:number;
 }

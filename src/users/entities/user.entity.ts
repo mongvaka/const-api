@@ -1,5 +1,6 @@
 import { BasicData } from 'src/shared/basics/basic-data';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { AddressDelivery } from './address-delivery.entity';
 @Entity()
 export class User extends BasicData {
   @Column({ type: 'text', nullable: false })
@@ -14,4 +15,6 @@ export class User extends BasicData {
   firstName?: string;
   @Column({ type: 'text', nullable: true })
   lastName?: string;
+  @OneToMany(()=>AddressDelivery, (address)=>address.user,{cascade:true})
+  address?:AddressDelivery[]
 }
