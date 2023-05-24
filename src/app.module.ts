@@ -7,6 +7,9 @@ import * as path from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { ChatGateway } from './chat.gateway';
 import { EspModule } from './iot/esp.module';
+import { SupportModule } from './supports/support.module';
+import { AddressModule } from './address/address.module';
+import { ProductModule } from './products/product.module';
 
 @Module({
   imports: [
@@ -35,7 +38,11 @@ import { EspModule } from './iot/esp.module';
       },
     }),
     UsersModule ,
-    EspModule
+    EspModule,
+    SupportModule,
+    AddressModule,
+    ProductModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService
