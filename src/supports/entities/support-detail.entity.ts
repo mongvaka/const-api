@@ -18,8 +18,8 @@ export class SupportDetail extends BasicChildrentData {
   message: string;
   @Column({ type: 'enum',enum: MessageType, nullable: true,default: MessageType.MESSAGE})
   type: MessageType;
-  @Column({ type: 'bigint', nullable: false })
-  awnserId: number;
-  @ManyToOne(awnser=>User,awnser=>awnser.id)
-  awnser?: User;
+  @Column({ type: 'bigint', nullable: true })
+  answerId?: number;
+  @ManyToOne(answer=>User,answer=>answer.id)
+  answer?: User;
 }

@@ -6,6 +6,8 @@ import { ProductService } from './product.service';
 import { CreateProductDto, DeleteProductDto, UpdateProductDto } from './dto/product.dto';
 import { OrderDto } from './dto/order.dto';
 import { ProductSearchDto } from './dto/search-product.dto';
+import { ProductDetailDto } from './dto/product-detail.dto';
+import { OrderSearchDto } from './dto/search-order.dto';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
@@ -13,8 +15,12 @@ import { ProductSearchDto } from './dto/search-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   @Post('search-product')
-  searchPeoduct(@Body() dto:ProductSearchDto) {
+  searchProduct(@Body() dto:ProductSearchDto) {
     return this.productService.searchProduct(dto);
+  }
+  @Post('product-detail')
+  productDetail(@Body() dto:ProductDetailDto) {
+    return this.productService.productDetail(dto);
   }
    @Post('create-product')
    createProduct(@Body() dto:CreateProductDto) {
@@ -31,5 +37,9 @@ export class ProductController {
    @Post('create-order')
    createOrder(@Body() dto:OrderDto) {
      return this.productService.createOrder(dto);
+   }
+   @Post('search-order')
+   searchOrder(@Body() dto:OrderSearchDto) {
+     return this.productService.searchOrder(dto);
    }
 }

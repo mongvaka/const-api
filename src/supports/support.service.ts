@@ -23,6 +23,7 @@ export class SupportService {
   async sendChatMessage(dto:SendChatDto){
     const findExistSupport = await this.findExistSupportByCustomerId(dto.clientId);
     if(findExistSupport){
+      dto.supportId = findExistSupport.id
       return this.createMessage(dto);
     }
     return this.createSupportAndMessage(dto)
@@ -41,7 +42,7 @@ export class SupportService {
       supportId: supportResult.id,
       message: dto.message,
       type: dto.type,
-      awnserId: dto.awnserId
+      answerId: dto.answerId
     }
     return this.supportDetailRepository.save(
       this.supportDetailRepository.create(supportDetail)
@@ -51,7 +52,7 @@ export class SupportService {
     const model:SupportDetail = {
       supportId:dto.supportId,
       type:dto.type,
-      awnserId:dto.awnserId,
+      answerId:dto.answerId,
       message:dto.message,
       createdAt:new Date()
     }
@@ -61,9 +62,9 @@ export class SupportService {
   }
   async searchChatMessage(dto:SearchChatDto){
     const data = await this.supportDetailRepository.find({
-      relations: ['support','awnser'],
+      relations: ['support','answer'],
       select: {
-        awnser:{
+        answer:{
           firstName:true,
           lastName:true,
           id:true,

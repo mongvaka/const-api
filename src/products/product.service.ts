@@ -12,9 +12,12 @@ import { OrderStatus } from './entities/order-status-tracking.entity';
 import { ProductSearchDto } from './dto/search-product.dto';
 import { BasicResponseDto, Pageable } from 'src/shared/basics/basic-response.dto';
 import { getRespones } from 'src/shared/functions/respone-function';
+import { ProductDetailDto } from './dto/product-detail.dto';
+import { OrderSearchDto } from './dto/search-order.dto';
 
 @Injectable()
 export class ProductService {
+ 
   
   constructor(
     @InjectRepository(Product)
@@ -34,6 +37,7 @@ export class ProductService {
     const data = await this.productRepository.find({
       relations: ['images'],
       select: {
+        id:true,
         name:true,
         code:true,
         detail:true,
@@ -49,6 +53,37 @@ export class ProductService {
       }
     });
     return getRespones(data,dto);
+  }
+  async productDetail(dto: ProductDetailDto) {
+    return this.productRepository.findOne({
+      relations:['images','comment','comment.order'],
+      select:{
+        id:true,
+        name:true,
+        code:true,
+        detail:true,
+        images:{
+          url:true,
+          name:true,
+          type:true
+        },
+        comment:{
+          comment: true,
+          commentor:{
+            email:true,
+            firstName:true,
+            lastName:true
+          },
+          rating:true,
+          order:{
+            oderDate:true,
+            orderNumber:true,
+          }
+        }
+      },
+      where:{
+      id:dto.id,
+    }})
   }
   async createProduct(dto: CreateProductDto) {
     let model: Product = {
@@ -82,7 +117,7 @@ export class ProductService {
       orderId:orderId
     }})
     if(existProductInOrder){
-      existProductInOrder.value += value
+      existProductInOrder.value = ((+ existProductInOrder.value) + (+value))
       existProductInOrder.updatedAt = new Date
       return this.orderDetailRepository.save(existProductInOrder)
     }
@@ -143,15 +178,8 @@ export class ProductService {
       where: [
         {
           orderNumber: Like(`${currentOrder}%`), statusTracking: {
-            status: OrderStatus.BUCKET
-          }
-        },
-        {
-          buyerId, 
-          statusTracking: {
-            status: OrderStatus.BUCKET
-          },
-          sellerId
+            status: OrderStatus.BUCKET,
+          },buyerId
         },
 
       ]
@@ -162,5 +190,10 @@ export class ProductService {
     const date: Date = new Date();
     const month: string = (date.getMonth() < 10) ? (`0` + date.getMonth() + 1) : (date.getMonth() + 1).toString()
     return `${date.getFullYear()}${month}${date.getDate()}`
+  }
+  async searchOrder(dto:OrderSearchDto){
+    return this.orderRepository.find({
+      relations:['orderDetails']
+    })
   }
 }

@@ -8,7 +8,7 @@ export class SendChatDto {
     @ApiProperty({type:Number})
     clientId: number;
     @ApiProperty({type:Number})
-    awnserId: number;
+    answerId: number;
     @ApiProperty({type:String})
     message: string;
     @ApiProperty({enum:MessageType,description: Object.values(MessageType).toString()})
