@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from 'src/users/jwt-auth.guard';
@@ -8,12 +8,27 @@ import { OrderDto } from './dto/order.dto';
 import { ProductSearchDto } from './dto/search-product.dto';
 import { ProductDetailDto } from './dto/product-detail.dto';
 import { OrderSearchDto } from './dto/search-order.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from 'src/shared/constans/constans';
+import { Observable, of } from 'rxjs';
+import { join } from 'path';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
 @ApiBearerAuth()
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
+  @Get('image/:name')
+  @ApiParam({name:'name',type:String})
+  findProfileImage(@Param('name') imagename, @Res() res): Observable<Object> {
+      return of(res.sendFile(join(process.cwd(), 'uploads/product-images/' + imagename)));
+  }
+  @Post('upload-image')
+  @UseInterceptors(FileInterceptor('file', storage))
+  uploadFile(@UploadedFile() file) {
+  return file.filename
+  }
+
   @Post('search-product')
   searchProduct(@Body() dto:ProductSearchDto) {
     return this.productService.searchProduct(dto);
@@ -42,4 +57,6 @@ export class ProductController {
    searchOrder(@Body() dto:OrderSearchDto) {
      return this.productService.searchOrder(dto);
    }
+
+
 }
