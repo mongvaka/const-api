@@ -14,7 +14,7 @@ export const storage = {
     })
 
 }
-export const storstorageChatage = {
+export const storageChat = {
     storage: diskStorage({
         destination: './uploads/chat-images',
         filename: (req, file, cb) => {

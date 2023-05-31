@@ -8,7 +8,7 @@ import { SendChatDto } from "./dto/send-chat-message.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { join } from "path";
 import { Observable, of } from "rxjs";
-import { storage } from "src/shared/constans/constans";
+import { storage, storageChat } from "src/shared/constans/constans";
 @ApiTags('Support')
 @UseGuards(JwtAuthGuard)
 @Controller('support')
