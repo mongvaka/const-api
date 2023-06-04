@@ -11,6 +11,7 @@ import { BasicResponseDto, Pageable } from 'src/shared/basics/basic-response.dto
 import { EspSchedule } from './entities/esp-schedule.entity';
 import { UsersService } from 'src/users/users.service';
 import { getRespones } from 'src/shared/functions/respone-function';
+import { SendChatDto } from 'src/supports/dto/send-chat-message.dto';
 
 @Injectable()
 @WebSocketGateway()
@@ -64,6 +65,23 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
     model.status = dto.status
     await this.espChildrenRepository.save(model)
     this.server.emit(dto.key, { pin: dto.pin, status: dto.status });
+    return true
+  }
+  async emitMessageSupport(clientId:String,dto:SendChatDto) {
+    console.log('dto.answerId',dto.answerId);
+    let awnserModel = null;
+    if(dto.answerId!=null){
+      awnserModel = await this.userService.getUser({id:dto.answerId})
+    }
+    console.log('awnserModel',awnserModel);
+    
+    const user = awnserModel==null?null:{
+      id:awnserModel.id,
+      firstname:awnserModel.firstName,
+      lastname:awnserModel.lastName,
+      email:awnserModel.email
+    }
+    this.server.emit(`message${clientId}`, {...dto,answer:user});
     return true
   }
   async listEspChild(dto: EspChildSearchDto) {

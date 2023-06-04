@@ -37,6 +37,10 @@ export class EspController {
   switchStatus(@Body() dto: SwitchStatusDto) {
     return this.espService.switchStatus(dto);
   }
+  // @Post('send-message')
+  // sendMessage() {
+  //   return this.espService.sendMessage();
+  // }
   @Post('pre-activate')
   preActivate(@Body() dto: PreActivateDto) {
     return this.espService.preActivate(dto);

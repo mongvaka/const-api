@@ -9,6 +9,7 @@ import { SearchSupportDto } from "./dto/search-support.dto";
 import { BasicResponseDto, Pageable } from "src/shared/basics/basic-response.dto";
 import { BasicsearchDto } from "src/shared/basics/basic-search.dto";
 import { getRespones } from "src/shared/functions/respone-function";
+import { EspService } from "src/iot/esp.service";
 
 @Injectable()
 export class SupportService {
@@ -17,6 +18,7 @@ export class SupportService {
     private readonly supportRepository: Repository<Support>,
     @InjectRepository(SupportDetail)
     private readonly supportDetailRepository: Repository<SupportDetail>,
+    private readonly espService:EspService
   ) {
 
   }
@@ -27,6 +29,9 @@ export class SupportService {
       return this.createMessage(dto);
     }
     return this.createSupportAndMessage(dto)
+  }
+  async emitChatMessageSupport(clientId:string,dto:SendChatDto){
+    this.espService.emitMessageSupport(clientId,dto)
   }
   private async findExistSupportByCustomerId(clientId: number) {
     return this.supportRepository.findOne({where:{customerId:clientId}})
@@ -44,6 +49,8 @@ export class SupportService {
       type: dto.type,
       answerId: dto.answerId
     }
+    this.emitChatMessageSupport(dto.clientId.toString(),dto)
+
     return this.supportDetailRepository.save(
       this.supportDetailRepository.create(supportDetail)
     )
@@ -56,6 +63,7 @@ export class SupportService {
       message:dto.message,
       createdAt:new Date()
     }
+    this.emitChatMessageSupport(dto.clientId.toString(),dto)
     return this.supportDetailRepository.save(
       this.supportDetailRepository.create(model)
     )
@@ -85,7 +93,8 @@ export class SupportService {
       },
       where: {
        support :{customerId: dto.clientId}
-      }
+      },
+      order:{createdAt:'DESC'},
     });
     return getRespones(data,dto);
     

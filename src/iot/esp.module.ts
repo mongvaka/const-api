@@ -16,6 +16,9 @@ import { JwtStrategy } from 'src/users/jwt-strategy';
     UsersModule
   ],
   controllers: [EspController],
-  providers: [EspService]
+  providers: [EspService],
+  exports:[
+    EspService
+  ]
 })
 export class EspModule {}
