@@ -10,6 +10,7 @@ import { EspModule } from './iot/esp.module';
 import { SupportModule } from './supports/support.module';
 import { AddressModule } from './address/address.module';
 import { ProductModule } from './products/product.module';
+import { ImageModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ProductModule } from './products/product.module';
     AddressModule,
     ProductModule,
     AddressModule,
+    ImageModule
   ],
   controllers: [AppController],
   providers: [AppService

@@ -5,13 +5,9 @@ import { Order } from './order.entity';
 import { Product } from './product.entity';
 import { ProductOption } from './product-option.entity';
 @Entity()
-export class OrderDetail extends BasicChildrentData {
+export class Bucket extends BasicData {
   @Column({ type: 'bigint', nullable: true })
   value: number;
-  @Column({ type: 'bigint', nullable: true })
-  orderId?: number;
-  @ManyToOne(order=>Order,order=>order.id)
-  order?:Order
   @Column({ type: 'bigint', nullable: true })
   productId: number;
   @ManyToOne(product=>Product,product=>product.id)
@@ -20,4 +16,8 @@ export class OrderDetail extends BasicChildrentData {
   optionId: number;
   @ManyToOne(type=> ProductOption,option => option.id,{onDelete:'CASCADE'})
   option?:ProductOption
+  @Column({ type: 'bigint', nullable: true })
+  buyerId: number;
+  @ManyToOne(user=>User,user=>user.id)
+  buyer?:User
 }

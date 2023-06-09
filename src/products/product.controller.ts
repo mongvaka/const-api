@@ -12,6 +12,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { storage } from 'src/shared/constans/constans';
 import { Observable, of } from 'rxjs';
 import { join } from 'path';
+import { AddProductToBucket } from './dto/add-product-to-bucket.dto';
+import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
@@ -49,6 +51,10 @@ export class ProductController {
    deleteProduct(@Body() dto:DeleteProductDto) {
      return this.productService.deleteProduct(dto);
    }
+   @Post('add-product-to-bucket')
+   addProductToBucket(@Body() dto:AddProductToBucket) {
+     return this.productService.increaseProductAmount(dto);
+   }
    @Post('create-order')
    createOrder(@Body() dto:OrderDto) {
      return this.productService.createOrder(dto);
@@ -56,6 +62,10 @@ export class ProductController {
    @Post('search-order')
    searchOrder(@Body() dto:OrderSearchDto) {
      return this.productService.searchOrder(dto);
+   }
+   @Post('search-product-in-bucket')
+   searchProductInBucket(@Body() dto:SearchProductInBucketDto) {
+     return this.productService.searchProductInBucket(dto);
    }
 
 

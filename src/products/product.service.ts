@@ -14,11 +14,14 @@ import { BasicResponseDto, Pageable } from 'src/shared/basics/basic-response.dto
 import { getRespones } from 'src/shared/functions/respone-function';
 import { ProductDetailDto } from './dto/product-detail.dto';
 import { OrderSearchDto } from './dto/search-order.dto';
+import { AddProductToBucket } from './dto/add-product-to-bucket.dto';
+import { Bucket } from './entities/bucket.entity';
+import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
 
 @Injectable()
 export class ProductService {
- 
-  
+
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -30,60 +33,79 @@ export class ProductService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(Bucket)
+    private readonly bucketRepository: Repository<Bucket>,
   ) {
 
   }
   async searchProduct(dto: ProductSearchDto) {
     const data = await this.productRepository.find({
-      relations: ['images'],
+      relations: ['images', 'options'],
       select: {
-        id:true,
-        name:true,
-        code:true,
-        detail:true,
-        rating:true,
-        images:{
-          name:true,
-          url:true,
-          type:true
+        id: true,
+        name: true,
+        code: true,
+        detail: true,
+        rating: true,
+        images: {
+          name: true,
+          url: true,
+          type: true
+        },
+        options: {
+          id: true,
+          price: true,
+          name: true
         }
       },
       where: {
-        name:Like(`%${dto.name}%`)
+        name: Like(`%${dto.name}%`)
       }
     });
-    return getRespones(data,dto);
+    return getRespones(data, dto);
   }
   async productDetail(dto: ProductDetailDto) {
-    return this.productRepository.findOne({
-      relations:['images','comment','comment.order'],
-      select:{
-        id:true,
-        name:true,
-        code:true,
-        detail:true,
-        images:{
-          url:true,
-          name:true,
-          type:true
+    const model = await this.productRepository.find({
+      relations: ['images', 'comment', 'comment.order', 'options'],
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        detail: true,
+        rating: true,
+        sold: true,
+        images: {
+          url: true,
+          name: true,
+          type: true
         },
-        comment:{
+        comment: {
           comment: true,
-          commentor:{
-            email:true,
-            firstName:true,
-            lastName:true
+          commentor: {
+            email: true,
+            firstName: true,
+            lastName: true
           },
-          rating:true,
-          order:{
-            oderDate:true,
-            orderNumber:true,
+          rating: true,
+          order: {
+            oderDate: true,
+            orderNumber: true,
           }
+        },
+        options: {
+          id: true,
+          name: true,
+          price: true
         }
       },
-      where:{
-      id:dto.id,
-    }})
+      where: {
+        id: dto.id,
+      }
+    }
+    )
+    console.log(model[0].options);
+    return model[0]
+
   }
   async createProduct(dto: CreateProductDto) {
     let model: Product = {
@@ -105,27 +127,30 @@ export class ProductService {
     )
   }
   async createOrder(dto: OrderDto) {
-    const existModel = await this.getExistOrder(dto.buyerId,dto.sellerId)
-    if(existModel){
-      return this.addProductToOrder(existModel.id,dto.productId,dto.value)
+    const existModel = await this.getExistOrder(dto.buyerId, dto.sellerId)
+    if (existModel) {
+      return this.addProductToOrder(existModel.id, dto.productId, dto.value, dto.optionId)
     }
     return this.createNewOrder(dto)
   }
- private async addProductToOrder(orderId: number, productId: number, value: number) {
-    const existProductInOrder = await this.orderDetailRepository.findOne({where:{
-      productId:productId,
-      orderId:orderId
-    }})
-    if(existProductInOrder){
+  private async addProductToOrder(orderId: number, productId: number, value: number, optionId: number) {
+    const existProductInOrder = await this.orderDetailRepository.findOne({
+      where: {
+        productId: productId,
+        orderId: orderId
+      }
+    })
+    if (existProductInOrder) {
       existProductInOrder.value = ((+ existProductInOrder.value) + (+value))
       existProductInOrder.updatedAt = new Date
       return this.orderDetailRepository.save(existProductInOrder)
     }
-    const detailModel:OrderDetail ={
-      productId:productId,
-      orderId:orderId,
-      value:value,
-      createdAt:new Date,
+    const detailModel: OrderDetail = {
+      productId: productId,
+      orderId: orderId,
+      value: value,
+      optionId: optionId,
+      createdAt: new Date,
     }
     return this.orderDetailRepository.save(
       this.orderDetailRepository.create(detailModel)
@@ -133,22 +158,23 @@ export class ProductService {
   }
   private async createNewOrder(dto: OrderDto) {
     const orderNumber = await this.getOrderNumber()
-    const orderModel:Order = {
+    const orderModel: Order = {
       orderNumber,
-      buyerId:dto.buyerId,
-      sellerId:dto.sellerId,
-      orderDetails:[
+      buyerId: dto.buyerId,
+      sellerId: dto.sellerId,
+      orderDetails: [
         {
           value: dto.value,
           productId: dto.productId,
+          optionId: dto.optionId
         }
       ],
-      statusTracking:[
+      statusTracking: [
         {
           status: OrderStatus.BUCKET,
           updaterId: dto.buyerId,
           statusDate: new Date,
-          reason:''
+          reason: ''
         }
       ]
     }
@@ -161,8 +187,8 @@ export class ProductService {
     const model = await this.orderRepository.findOne({
       relations: ['statusTracking'],
       where: {
-          orderNumber: Like(`${currentOrder}%`)
-        },
+        orderNumber: Like(`${currentOrder}%`)
+      },
       order: { id: 'DESC' }
     })
     if (model) {
@@ -171,29 +197,93 @@ export class ProductService {
       return `${currentOrder}-0000001`
     }
   }
-  private async getExistOrder(buyerId: number,sellerId:number){
-   const currentOrder = this.getCurrentOrderNumber();
+  private async getExistOrder(buyerId: number, sellerId: number) {
+    const currentOrder = this.getCurrentOrderNumber();
     return this.orderRepository.findOne({
       relations: ['statusTracking'],
       where: [
         {
           orderNumber: Like(`${currentOrder}%`), statusTracking: {
             status: OrderStatus.BUCKET,
-          },buyerId
+          }, buyerId
         },
 
       ]
       , order: { id: 'DESC' }
     })
   }
-  private getCurrentOrderNumber():string{
+  private getCurrentOrderNumber(): string {
     const date: Date = new Date();
     const month: string = (date.getMonth() < 10) ? (`0` + date.getMonth() + 1) : (date.getMonth() + 1).toString()
     return `${date.getFullYear()}${month}${date.getDate()}`
   }
-  async searchOrder(dto:OrderSearchDto){
+  async searchOrder(dto: OrderSearchDto) {
     return this.orderRepository.find({
-      relations:['orderDetails']
+      relations: ['orderDetails'],
     })
   }
+  async increaseProductAmount(dto: AddProductToBucket) {
+    const model = await this.bucketRepository.findOne({
+      where: {
+        id: dto.productId
+      }
+    })
+    if (!model) {
+      return this.addProductToBucket(dto)
+    }
+    model.value = (+model.value) + (+dto.value)
+    return this.bucketRepository.save(model);
+  }
+  async addProductToBucket(dto: AddProductToBucket) {
+    const model: Bucket = {
+      ...dto
+    }
+    return this.bucketRepository.save(
+      this.bucketRepository.create(model)
+    )
+  }
+  async searchProductInBucket(dto: SearchProductInBucketDto) {
+    const data = await this.bucketRepository.find(
+      {
+
+        relations:['product','product.images','product.options'],
+        select: {
+          id:true,
+          buyerId: true,
+          value: true,
+          optionId: true,
+          productId: true,
+          
+          product: {
+            id:true,
+            name: true,
+            code: true,
+            detail:true,
+            rating:true,
+            sold:true,
+            images: {
+              id:true,
+              name: true,
+              url: true,
+              type:true
+            },
+            options: {
+              name: true,
+              id: true,
+              price: true
+            }
+          }
+        },
+        order: {
+          createdAt: 'DESC'
+        },
+        where: {
+          buyerId: dto.buyerId
+        },
+      },
+
+    )
+    return getRespones(data, dto);
+  }
+  
 }

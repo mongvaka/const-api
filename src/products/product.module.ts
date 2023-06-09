@@ -10,12 +10,20 @@ import { Order } from "./entities/order.entity";
 import { Product } from "./entities/product.entity";
 import { ProductImage } from "./entities/product-image.entity";
 import { ProductComment } from "./entities/product-comment.entity";
+import { Bucket } from "./entities/bucket.entity";
 
 @Module({
-  imports:[
-    TypeOrmModule.forFeature([OrderDetail,OrderStatusTracking,Order,Product,ProductImage,ProductComment]),
+  imports: [
+    TypeOrmModule.forFeature([OrderDetail, 
+      OrderStatusTracking, 
+      Order, 
+      Product, 
+      ProductImage, 
+      ProductComment,
+      Bucket
+    ]),
   ],
   controllers: [ProductController],
   providers: [ProductService]
 })
-export class ProductModule {}
+export class ProductModule { }
