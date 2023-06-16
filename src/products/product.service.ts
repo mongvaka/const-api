@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Product } from './entities/product.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductComment } from './entities/product-comment.entity';
 import { Order } from './entities/order.entity';
@@ -17,9 +17,16 @@ import { OrderSearchDto } from './dto/search-order.dto';
 import { AddProductToBucket } from './dto/add-product-to-bucket.dto';
 import { Bucket } from './entities/bucket.entity';
 import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
+import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class ProductService {
+  async deleteProductInBucket(dto: DeleteProductInBucket) {
+    return this.bucketRepository.remove(
+      await this.bucketRepository.findOne({where:{...dto}})
+    )
+  }
 
 
   constructor(
@@ -127,11 +134,11 @@ export class ProductService {
     )
   }
   async createOrder(dto: OrderDto) {
-    const existModel = await this.getExistOrder(dto.buyerId, dto.sellerId)
-    if (existModel) {
-      return this.addProductToOrder(existModel.id, dto.productId, dto.value, dto.optionId)
-    }
-    return this.createNewOrder(dto)
+    // const existModel = await this.getExistOrder(dto.buyerId, dto.sellerId)
+    // if (existModel) {
+    //   return this.addProductToOrder(existModel.id, dto.productId, dto.value, dto.optionId)
+    // }
+    // return this.createNewOrder(dto)
   }
   private async addProductToOrder(orderId: number, productId: number, value: number, optionId: number) {
     const existProductInOrder = await this.orderDetailRepository.findOne({
@@ -156,31 +163,40 @@ export class ProductService {
       this.orderDetailRepository.create(detailModel)
     )
   }
-  private async createNewOrder(dto: OrderDto) {
+   async createNewOrder(dto: CreateOrderDto) {    
     const orderNumber = await this.getOrderNumber()
+    const orderDetail:OrderDetail[] = dto.ordersDetail.map(m=>{
+      return {
+        value: m.value,
+        productId: m.productId,
+        optionId: m.optionId,
+        price:m.price
+      }
+    })
     const orderModel: Order = {
       orderNumber,
+      oderDate:new Date,
       buyerId: dto.buyerId,
-      sellerId: dto.sellerId,
-      orderDetails: [
-        {
-          value: dto.value,
-          productId: dto.productId,
-          optionId: dto.optionId
-        }
-      ],
+      sellerId: null,
+      orderDetails: orderDetail,
+      status:OrderStatus.BUYER_CONFIRM,
+      deliveryTag:'',
       statusTracking: [
         {
-          status: OrderStatus.BUCKET,
+          status: OrderStatus.BUYER_CONFIRM,
           updaterId: dto.buyerId,
           statusDate: new Date,
           reason: ''
         }
       ]
     }
-    return this.orderRepository.save(
+    const result = await this.orderRepository.save(
       this.orderRepository.create(orderModel)
     )
+    await this.bucketRepository.remove(
+      await this.bucketRepository.find({where:{id:In(dto.ordersDetail.map(m=>m.bucketId))}})
+    )
+    return result
   }
   private async getOrderNumber() {
     const currentOrder = this.getCurrentOrderNumber();
@@ -218,20 +234,52 @@ export class ProductService {
     return `${date.getFullYear()}${month}${date.getDate()}`
   }
   async searchOrder(dto: OrderSearchDto) {
-    return this.orderRepository.find({
-      relations: ['orderDetails'],
+    const data = await this.orderRepository.find({
+      relations: ['orderDetails',
+      'statusTracking',
+      'orderDetails.product',
+      'orderDetails.product.images',
+    ],
+      select:{
+        id:true,
+        orderNumber:true,
+        buyerId:true,
+        oderDate:true,
+        status:true,
+        statusTracking:{
+          id:true,
+          orderId:true,
+          status:true,
+          statusDate:true,
+          reason:true
+        },
+        orderDetails:{
+          id:true,
+          value:true,
+          price:true,
+          product:{
+              name:true,
+              images:{
+                url:true
+              }
+          }
+        }
+      }
     })
+    return getRespones(data, dto);
   }
   async increaseProductAmount(dto: AddProductToBucket) {
     const model = await this.bucketRepository.findOne({
       where: {
-        id: dto.productId
+        id: dto.productId,
+        optionId:dto.optionId
       }
     })
     if (!model) {
       return this.addProductToBucket(dto)
     }
     model.value = (+model.value) + (+dto.value)
+    model.activate = dto.activate
     return this.bucketRepository.save(model);
   }
   async addProductToBucket(dto: AddProductToBucket) {
@@ -253,7 +301,7 @@ export class ProductService {
           value: true,
           optionId: true,
           productId: true,
-          
+          activate:true,
           product: {
             id:true,
             name: true,
@@ -285,5 +333,57 @@ export class ProductService {
     )
     return getRespones(data, dto);
   }
-  
+  async getOrderNotification(id:number){
+    let delivering:number = 0;
+    let canceled:number = 0;
+    let canReview:number = 0;
+    let completed:number = 0;
+    const orders = await this.orderRepository.find({where:{buyerId:id}})
+    console.log(orders);
+    console.log(orders.length);
+    
+    orders.forEach(el=>{
+        if(el.status == OrderStatus.BUYER_CONFIRM){
+          delivering += 1
+        }
+        if(el.status == OrderStatus.CANCELED){
+          canceled += 1
+        }
+        if(el.status == OrderStatus.DELIVERED){
+          canReview += 1
+        }
+        if(el.status == OrderStatus.COMLETED){
+          completed += 1
+        }
+    })
+    const result = [
+      {
+        "name":'การจัดส่ง',
+        "icon":'box.svg',
+        "status":OrderStatus.BUYER_CONFIRM,
+        "value":delivering
+      },
+      {
+        "name":'ที่สำเร็จ',
+        "icon":'delivery.svg',
+        "status":OrderStatus.COMLETED,
+        "value":completed
+      },
+      {
+        "name":'การยกเลิก',
+        "icon":'cancel_circle.svg',
+        "status":OrderStatus.CANCELED,
+        "value":canceled
+      },
+      {
+        "name":'ให้คะแนน',
+        "icon":'star.svg',
+        "status":OrderStatus.DELIVERED,
+        "value":canReview
+      },
+    ]
+    console.log(result);
+    
+    return result;
+  }
 }

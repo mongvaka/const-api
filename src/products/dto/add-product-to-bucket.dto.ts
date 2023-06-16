@@ -10,4 +10,6 @@ export class AddProductToBucket extends BasicDto{
     value: number;
     @ApiProperty({type:Number})
     optionId: number;
+    @ApiProperty({type:Boolean})
+    activate: boolean;
 }

@@ -14,6 +14,8 @@ import { Observable, of } from 'rxjs';
 import { join } from 'path';
 import { AddProductToBucket } from './dto/add-product-to-bucket.dto';
 import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
+import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
+import { CreateOrderDto } from './dto/create-order.dto';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
@@ -24,6 +26,11 @@ export class ProductController {
   @ApiParam({name:'name',type:String})
   findProfileImage(@Param('name') imagename, @Res() res): Observable<Object> {
       return of(res.sendFile(join(process.cwd(), 'uploads/product-images/' + imagename)));
+  }
+  @Get('notice/:id')
+  @ApiParam({name:'id',type:String})
+  getOrderNotification(@Param('id') id) {
+    return this.productService.getOrderNotification(id);
   }
   @Post('upload-image')
   @UseInterceptors(FileInterceptor('file', storage))
@@ -55,9 +62,13 @@ export class ProductController {
    addProductToBucket(@Body() dto:AddProductToBucket) {
      return this.productService.increaseProductAmount(dto);
    }
+   @Post('delete-product-in-bucket')
+   deleteProductToBucket(@Body() dto:DeleteProductInBucket) {
+     return this.productService.deleteProductInBucket(dto);
+   }
    @Post('create-order')
-   createOrder(@Body() dto:OrderDto) {
-     return this.productService.createOrder(dto);
+   createOrder(@Body() dto:CreateOrderDto) {
+     return this.productService.createNewOrder(dto);
    }
    @Post('search-order')
    searchOrder(@Body() dto:OrderSearchDto) {

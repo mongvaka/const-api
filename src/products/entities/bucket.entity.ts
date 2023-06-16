@@ -20,4 +20,6 @@ export class Bucket extends BasicData {
   buyerId: number;
   @ManyToOne(user=>User,user=>user.id)
   buyer?:User
+  @Column({ type: 'boolean', nullable: false,default:false })
+  activate: boolean;
 }

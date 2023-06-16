@@ -20,4 +20,6 @@ export class OrderDetail extends BasicChildrentData {
   optionId: number;
   @ManyToOne(type=> ProductOption,option => option.id,{onDelete:'CASCADE'})
   option?:ProductOption
+  @Column({ type: 'double precision', nullable: false ,default:0})
+  price?: number;
 }

@@ -4,7 +4,10 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
 export enum OrderStatus{
   BUCKET = 'Bucket',
-  BUYER_CONFIRM = 'BuyerConfirm'
+  BUYER_CONFIRM = 'BuyerConfirm',
+  CANCELED = 'Canceled',
+  DELIVERED = 'Delivered',
+  COMLETED = 'Completed',
 }
 @Entity()
 export class OrderStatusTracking extends BasicChildrentData {

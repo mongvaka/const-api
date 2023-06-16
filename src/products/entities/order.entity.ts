@@ -21,4 +21,8 @@ export class Order extends BasicData {
   statusTracking?:OrderStatusTracking[]
   @OneToMany(()=>OrderDetail, (orderDetails)=>orderDetails.order,{cascade:true})
   orderDetails?:OrderDetail[]
+  @Column({ type: 'varchar', nullable: false,default:'' })
+  status: string;
+  @Column({ type: 'varchar', nullable: false,default:'' })
+  deliveryTag: string;
 }
