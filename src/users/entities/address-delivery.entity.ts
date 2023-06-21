@@ -9,33 +9,33 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 export class AddressDelivery extends BasicChildrentData {
   @Column({ type: 'bigint', nullable: false })
   userId: number;
-  @ManyToOne(user=>User,user=>user.id,{onDelete:'CASCADE'})
-  user:User
+  @ManyToOne(us=>User,us=>us.id,{onDelete:'CASCADE'})
+  user?:User
   @Column({ type: 'varchar', nullable: false })
   address: string;
   @Column({ type: 'varchar', nullable: false })
   phoneNumber: string;
 
-  @Column({ type: 'bigint', nullable: false })
-  subDistrictCode: number;
+  @Column({ type: 'varchar', nullable: false })
+  subDistrictCode: string;
   @ManyToOne(subDistrict=>SubDistrict,subDistrict=>subDistrict.code)
-  subDistrict:SubDistrict
+  subDistrict?:SubDistrict
 
-  @Column({ type: 'bigint', nullable: false })
-  districtCode: number;
+  @Column({ type: 'varchar', nullable: false })
+  districtCode: string;
   @ManyToOne(district=>District,district=>district.code)
-  district:District
+  district?:District
 
-  @Column({ type: 'bigint', nullable: false })
-  provinceCode: number;
+  @Column({ type: 'varchar', nullable: false })
+  provinceCode: string;
   @ManyToOne(province=>Province,province=>province.code)
-  province:Province
+  province?:Province
 
-  @Column({ type: 'bigint', nullable: false })
-  countryCode: number;
+  @Column({ type: 'varchar', nullable: false })
+  countryCode: string;
   @ManyToOne(country=>Country,country=>country.code)
-  country:Country
+  country?:Country
 
   @Column({ type: 'boolean', nullable: false })
-  isPrimary: number;
+  isPrimary: boolean;
 }

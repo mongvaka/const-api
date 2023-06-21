@@ -19,9 +19,13 @@ import { Bucket } from './entities/bucket.entity';
 import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
 import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CountBucketDto } from './dto/count-bucket.dto';
 
 @Injectable()
 export class ProductService {
+  async countBucket(dto: CountBucketDto) {
+    return this.bucketRepository.count({where:{buyerId:dto.userId}})
+  }
   async deleteProductInBucket(dto: DeleteProductInBucket) {
     return this.bucketRepository.remove(
       await this.bucketRepository.findOne({where:{...dto}})
@@ -163,8 +167,11 @@ export class ProductService {
       this.orderDetailRepository.create(detailModel)
     )
   }
-   async createNewOrder(dto: CreateOrderDto) {    
+   async createNewOrder(dto: CreateOrderDto) {  
+    console.log('createNewOrder');
+      
     const orderNumber = await this.getOrderNumber()
+    console.log('orderNumber',orderNumber);
     const orderDetail:OrderDetail[] = dto.ordersDetail.map(m=>{
       return {
         value: m.value,
@@ -200,15 +207,22 @@ export class ProductService {
   }
   private async getOrderNumber() {
     const currentOrder = this.getCurrentOrderNumber();
+    console.log('currentOrder',currentOrder);
+
     const model = await this.orderRepository.findOne({
-      relations: ['statusTracking'],
       where: {
         orderNumber: Like(`${currentOrder}%`)
       },
       order: { id: 'DESC' }
     })
+    console.log('model : ',model);
+
     if (model) {
-      return ''
+      const oldOrderNumber = model.orderNumber.split('-');
+      const currentOrdering:number = +oldOrderNumber[1]
+      const newOrder: number = currentOrdering+1;
+      const newOrderNumber:string = `${currentOrder}-${this.leftPad(newOrder,7)}`;
+      return newOrderNumber;
     } else {
       return `${currentOrder}-0000001`
     }
@@ -234,6 +248,8 @@ export class ProductService {
     return `${date.getFullYear()}${month}${date.getDate()}`
   }
   async searchOrder(dto: OrderSearchDto) {
+    console.log(dto);
+    
     const data = await this.orderRepository.find({
       relations: ['orderDetails',
       'statusTracking',
@@ -264,6 +280,9 @@ export class ProductService {
               }
           }
         }
+      },
+      where:{
+        status:dto.status
       }
     })
     return getRespones(data, dto);
@@ -385,5 +404,12 @@ export class ProductService {
     console.log(result);
     
     return result;
+  }
+  leftPad(number:number, targetLength:number):string {
+    let output = number.toString();
+    while (output.length < targetLength) {
+      output = '0' + output;
+    }
+    return output;
   }
 }

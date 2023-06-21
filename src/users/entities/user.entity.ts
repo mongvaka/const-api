@@ -1,5 +1,5 @@
 import { BasicData } from 'src/shared/basics/basic-data';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
 import { AddressDelivery } from './address-delivery.entity';
 @Entity()
 export class User extends BasicData {
@@ -17,4 +17,8 @@ export class User extends BasicData {
   lastName?: string;
   @OneToMany(()=>AddressDelivery, (address)=>address.user,{cascade:true})
   address?:AddressDelivery[]
+  @Column({ type: 'text', nullable: false,default:'' })
+  mobile: string;
+  @Column({ type: 'bool', nullable: false,default:false })
+  mobileVerify: boolean;
 }

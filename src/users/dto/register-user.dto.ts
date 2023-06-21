@@ -7,4 +7,8 @@ export class RegisterDto {
     password:string;
     @ApiProperty({type:String})
     rePassword:string;
+    @ApiProperty({type:String})
+    fName:string;
+    @ApiProperty({type:String})
+    lName:string;
 }

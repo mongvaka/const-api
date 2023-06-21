@@ -16,6 +16,7 @@ import { AddProductToBucket } from './dto/add-product-to-bucket.dto';
 import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
 import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CountBucketDto } from './dto/count-bucket.dto';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
@@ -79,5 +80,8 @@ export class ProductController {
      return this.productService.searchProductInBucket(dto);
    }
 
-
+   @Post('count-bucket')
+   countBucket(@Body() dto:CountBucketDto) {
+     return this.productService.countBucket(dto);
+   }
 }

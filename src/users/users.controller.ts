@@ -6,6 +6,8 @@ import { RegisterDto } from './dto/register-user.dto';
 import { LoginDto } from './dto/login-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { VerifyMobileDto } from './dto/verify-mobile.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
 @ApiTags('Authen')
 @Controller('users')
 export class UsersController {
@@ -22,5 +24,15 @@ export class UsersController {
   @Post('get-user')
   getUser( @Body() dto: GetUserDto) {
     return this.usersService.getUser(dto);
+  }
+  @Post('verify-mobile')
+  verifyMobile( @Body() dto: VerifyMobileDto) {
+    return this.usersService.verifyMobile(dto);
+  }
+  @Post('create-address')
+  createAddress( @Body() dto: CreateAddressDto) {
+    console.log(dto);
+    
+    return this.usersService.createAddress(dto);
   }
 }

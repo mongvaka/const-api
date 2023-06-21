@@ -9,15 +9,59 @@ import { LoginDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { GetUserDto } from './dto/get-user.dto';
+import { VerifyMobileDto } from './dto/verify-mobile.dto';
+import { CreateAddressDto } from 'src/users/dto/create-address.dto';
+import { AddressDelivery } from './entities/address-delivery.entity';
 
 @Injectable()
 export class UsersService {
+  async verifyMobile(dto: VerifyMobileDto) {
+    const verify = await this.userRepository.findOne({select:{mobileVerify:true,},where:{id:dto.userId}})
+    console.log('verify.mobileVerify',verify.mobileVerify);
+    return verify.mobileVerify
+  }
   async getUser(dto: GetUserDto) {
-    return this.userRepository.findOne({select:{
+    const resunt = await this.userRepository.findOne(
+      {
+        relations:[
+          'address',
+          'address.country',
+          'address.province',
+          'address.district',
+          'address.subDistrict'
+        ],select:{
+          id:true,
       lastName:true,
       firstName:true,
       email:true,
-    },where:{id:dto.id}})
+      address:{
+        address:true,
+        userId:true,
+        phoneNumber:true,
+        countryCode:true,
+        provinceCode:true,
+        districtCode:true,
+        subDistrictCode:true,
+        country:{
+          name:true
+        },
+        province:{
+          name:true
+        },
+        district:{
+          name:true
+        },
+        subDistrict:{
+          name:true,
+          postCode:true
+        }
+      }
+    }
+    
+    ,where:{id:dto.id,address:{isPrimary:true}}})
+    console.log('resunt',resunt);
+    
+    return resunt
   }
   async login(dto: LoginDto) {    
     const user = await this.userRepository.findOne({select:{
@@ -44,6 +88,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository:Repository<User>,
+    @InjectRepository(AddressDelivery)
+    private readonly addressDeliveryRepository:Repository<AddressDelivery>,
     private readonly jwtService: JwtService
 
   ){
@@ -57,7 +103,11 @@ export class UsersService {
       ...dto,
       password:hashPassword,
       id:undefined,
-      createdAt:new Date()
+      mobile:'',
+      mobileVerify:false,
+      createdAt:new Date(),
+      firstName:dto.fName,
+      lastName:dto.lName
     }
     const response = await this.userRepository.save(this.userRepository.create(model))
     const payload = { id:response.id };
@@ -67,6 +117,23 @@ export class UsersService {
       token:token
     }
   }
+  async createAddress(dto:CreateAddressDto){
+    const model:AddressDelivery = {
+      userId: dto.userId,
+      address: dto.address,
+      phoneNumber: dto.phoneNumber,
+      subDistrictCode: dto.subDistrictCode,
+      districtCode: dto.districtCode,
+      provinceCode: dto.provinceCode,
+      countryCode: dto.countryCode,
+      isPrimary: true,
+      id:undefined,
+    }
+    return this.addressDeliveryRepository.save(
+      this.addressDeliveryRepository.create(model)
+    )
+  }
+
 
 
 }
