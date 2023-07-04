@@ -11,6 +11,7 @@ import { Product } from "./entities/product.entity";
 import { ProductImage } from "./entities/product-image.entity";
 import { ProductComment } from "./entities/product-comment.entity";
 import { Bucket } from "./entities/bucket.entity";
+import { Category } from "./entities/category.entity";
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { Bucket } from "./entities/bucket.entity";
       Product, 
       ProductImage, 
       ProductComment,
-      Bucket
+      Bucket,Category
     ]),
   ],
   controllers: [ProductController],

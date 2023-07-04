@@ -33,6 +33,10 @@ export class ProductController {
   getOrderNotification(@Param('id') id) {
     return this.productService.getOrderNotification(id);
   }
+  @Get('category')
+  getCategory() {
+    return this.productService.getCategory();
+  }
   @Post('upload-image')
   @UseInterceptors(FileInterceptor('file', storage))
   uploadFile(@UploadedFile() file) {

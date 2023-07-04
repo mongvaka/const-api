@@ -20,15 +20,16 @@ import { SearchProductInBucketDto } from './dto/search-product-in-bucket.dto';
 import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CountBucketDto } from './dto/count-bucket.dto';
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class ProductService {
   async countBucket(dto: CountBucketDto) {
-    return this.bucketRepository.count({where:{buyerId:dto.userId}})
+    return this.bucketRepository.count({ where: { buyerId: dto.userId } })
   }
   async deleteProductInBucket(dto: DeleteProductInBucket) {
     return this.bucketRepository.remove(
-      await this.bucketRepository.findOne({where:{...dto}})
+      await this.bucketRepository.findOne({ where: { ...dto } })
     )
   }
 
@@ -36,14 +37,10 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    @InjectRepository(ProductImage)
-    private readonly productImagesRepository: Repository<ProductImage>,
-    @InjectRepository(ProductComment)
-    private readonly productCommentRepository: Repository<ProductComment>,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(OrderDetail)
-    private readonly orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Bucket)
     private readonly bucketRepository: Repository<Bucket>,
   ) {
@@ -58,6 +55,7 @@ export class ProductService {
         code: true,
         detail: true,
         rating: true,
+        categoryId:true,
         images: {
           name: true,
           url: true,
@@ -70,10 +68,14 @@ export class ProductService {
         }
       },
       where: {
-        name: Like(`%${dto.name}%`)
+        name: Like(`%${dto.name}%`),
+        categoryId:dto.categoryId
       }
     });
     return getRespones(data, dto);
+  }
+  async getCategory(){
+    return this.categoryRepository.find({select:{id:true,name:true,description:true}})
   }
   async productDetail(dto: ProductDetailDto) {
     const model = await this.productRepository.find({
@@ -114,7 +116,6 @@ export class ProductService {
       }
     }
     )
-    console.log(model[0].options);
     return model[0]
 
   }
@@ -137,57 +138,24 @@ export class ProductService {
       await this.productRepository.findOne({ where: { id: dto.id } })
     )
   }
-  async createOrder(dto: OrderDto) {
-    // const existModel = await this.getExistOrder(dto.buyerId, dto.sellerId)
-    // if (existModel) {
-    //   return this.addProductToOrder(existModel.id, dto.productId, dto.value, dto.optionId)
-    // }
-    // return this.createNewOrder(dto)
-  }
-  private async addProductToOrder(orderId: number, productId: number, value: number, optionId: number) {
-    const existProductInOrder = await this.orderDetailRepository.findOne({
-      where: {
-        productId: productId,
-        orderId: orderId
-      }
-    })
-    if (existProductInOrder) {
-      existProductInOrder.value = ((+ existProductInOrder.value) + (+value))
-      existProductInOrder.updatedAt = new Date
-      return this.orderDetailRepository.save(existProductInOrder)
-    }
-    const detailModel: OrderDetail = {
-      productId: productId,
-      orderId: orderId,
-      value: value,
-      optionId: optionId,
-      createdAt: new Date,
-    }
-    return this.orderDetailRepository.save(
-      this.orderDetailRepository.create(detailModel)
-    )
-  }
-   async createNewOrder(dto: CreateOrderDto) {  
-    console.log('createNewOrder');
-      
+  async createNewOrder(dto: CreateOrderDto) {
     const orderNumber = await this.getOrderNumber()
-    console.log('orderNumber',orderNumber);
-    const orderDetail:OrderDetail[] = dto.ordersDetail.map(m=>{
+    const orderDetail: OrderDetail[] = dto.ordersDetail.map(m => {
       return {
         value: m.value,
         productId: m.productId,
         optionId: m.optionId,
-        price:m.price
+        price: m.price
       }
     })
     const orderModel: Order = {
       orderNumber,
-      oderDate:new Date,
+      oderDate: new Date,
       buyerId: dto.buyerId,
       sellerId: null,
       orderDetails: orderDetail,
-      status:OrderStatus.BUYER_CONFIRM,
-      deliveryTag:'',
+      status: OrderStatus.BUYER_CONFIRM,
+      deliveryTag: '',
       statusTracking: [
         {
           status: OrderStatus.BUYER_CONFIRM,
@@ -201,13 +169,12 @@ export class ProductService {
       this.orderRepository.create(orderModel)
     )
     await this.bucketRepository.remove(
-      await this.bucketRepository.find({where:{id:In(dto.ordersDetail.map(m=>m.bucketId))}})
+      await this.bucketRepository.find({ where: { id: In(dto.ordersDetail.map(m => m.bucketId)) } })
     )
     return result
   }
   private async getOrderNumber() {
     const currentOrder = this.getCurrentOrderNumber();
-    console.log('currentOrder',currentOrder);
 
     const model = await this.orderRepository.findOne({
       where: {
@@ -215,32 +182,15 @@ export class ProductService {
       },
       order: { id: 'DESC' }
     })
-    console.log('model : ',model);
-
     if (model) {
       const oldOrderNumber = model.orderNumber.split('-');
-      const currentOrdering:number = +oldOrderNumber[1]
-      const newOrder: number = currentOrdering+1;
-      const newOrderNumber:string = `${currentOrder}-${this.leftPad(newOrder,7)}`;
+      const currentOrdering: number = +oldOrderNumber[1]
+      const newOrder: number = currentOrdering + 1;
+      const newOrderNumber: string = `${currentOrder}-${this.leftPad(newOrder, 7)}`;
       return newOrderNumber;
     } else {
       return `${currentOrder}-0000001`
     }
-  }
-  private async getExistOrder(buyerId: number, sellerId: number) {
-    const currentOrder = this.getCurrentOrderNumber();
-    return this.orderRepository.findOne({
-      relations: ['statusTracking'],
-      where: [
-        {
-          orderNumber: Like(`${currentOrder}%`), statusTracking: {
-            status: OrderStatus.BUCKET,
-          }, buyerId
-        },
-
-      ]
-      , order: { id: 'DESC' }
-    })
   }
   private getCurrentOrderNumber(): string {
     const date: Date = new Date();
@@ -248,41 +198,39 @@ export class ProductService {
     return `${date.getFullYear()}${month}${date.getDate()}`
   }
   async searchOrder(dto: OrderSearchDto) {
-    console.log(dto);
-    
     const data = await this.orderRepository.find({
       relations: ['orderDetails',
-      'statusTracking',
-      'orderDetails.product',
-      'orderDetails.product.images',
-    ],
-      select:{
-        id:true,
-        orderNumber:true,
-        buyerId:true,
-        oderDate:true,
-        status:true,
-        statusTracking:{
-          id:true,
-          orderId:true,
-          status:true,
-          statusDate:true,
-          reason:true
+        'statusTracking',
+        'orderDetails.product',
+        'orderDetails.product.images',
+      ],
+      select: {
+        id: true,
+        orderNumber: true,
+        buyerId: true,
+        oderDate: true,
+        status: true,
+        statusTracking: {
+          id: true,
+          orderId: true,
+          status: true,
+          statusDate: true,
+          reason: true
         },
-        orderDetails:{
-          id:true,
-          value:true,
-          price:true,
-          product:{
-              name:true,
-              images:{
-                url:true
-              }
+        orderDetails: {
+          id: true,
+          value: true,
+          price: true,
+          product: {
+            name: true,
+            images: {
+              url: true
+            }
           }
         }
       },
-      where:{
-        status:dto.status
+      where: {
+        status: dto.status
       }
     })
     return getRespones(data, dto);
@@ -291,7 +239,7 @@ export class ProductService {
     const model = await this.bucketRepository.findOne({
       where: {
         id: dto.productId,
-        optionId:dto.optionId
+        optionId: dto.optionId
       }
     })
     if (!model) {
@@ -313,26 +261,26 @@ export class ProductService {
     const data = await this.bucketRepository.find(
       {
 
-        relations:['product','product.images','product.options'],
+        relations: ['product', 'product.images', 'product.options'],
         select: {
-          id:true,
+          id: true,
           buyerId: true,
           value: true,
           optionId: true,
           productId: true,
-          activate:true,
+          activate: true,
           product: {
-            id:true,
+            id: true,
             name: true,
             code: true,
-            detail:true,
-            rating:true,
-            sold:true,
+            detail: true,
+            rating: true,
+            sold: true,
             images: {
-              id:true,
+              id: true,
               name: true,
               url: true,
-              type:true
+              type: true
             },
             options: {
               name: true,
@@ -352,60 +300,60 @@ export class ProductService {
     )
     return getRespones(data, dto);
   }
-  async getOrderNotification(id:number){
-    let delivering:number = 0;
-    let canceled:number = 0;
-    let canReview:number = 0;
-    let completed:number = 0;
-    const orders = await this.orderRepository.find({where:{buyerId:id}})
+  async getOrderNotification(id: number) {
+    let delivering: number = 0;
+    let canceled: number = 0;
+    let canReview: number = 0;
+    let completed: number = 0;
+    const orders = await this.orderRepository.find({ where: { buyerId: id } })
     console.log(orders);
     console.log(orders.length);
-    
-    orders.forEach(el=>{
-        if(el.status == OrderStatus.BUYER_CONFIRM){
-          delivering += 1
-        }
-        if(el.status == OrderStatus.CANCELED){
-          canceled += 1
-        }
-        if(el.status == OrderStatus.DELIVERED){
-          canReview += 1
-        }
-        if(el.status == OrderStatus.COMLETED){
-          completed += 1
-        }
+
+    orders.forEach(el => {
+      if (el.status == OrderStatus.BUYER_CONFIRM) {
+        delivering += 1
+      }
+      if (el.status == OrderStatus.CANCELED) {
+        canceled += 1
+      }
+      if (el.status == OrderStatus.DELIVERED) {
+        canReview += 1
+      }
+      if (el.status == OrderStatus.COMLETED) {
+        completed += 1
+      }
     })
     const result = [
       {
-        "name":'การจัดส่ง',
-        "icon":'box.svg',
-        "status":OrderStatus.BUYER_CONFIRM,
-        "value":delivering
+        "name": 'การจัดส่ง',
+        "icon": 'box.svg',
+        "status": OrderStatus.BUYER_CONFIRM,
+        "value": delivering
       },
       {
-        "name":'ที่สำเร็จ',
-        "icon":'delivery.svg',
-        "status":OrderStatus.COMLETED,
-        "value":completed
+        "name": 'ที่สำเร็จ',
+        "icon": 'delivery.svg',
+        "status": OrderStatus.COMLETED,
+        "value": completed
       },
       {
-        "name":'การยกเลิก',
-        "icon":'cancel_circle.svg',
-        "status":OrderStatus.CANCELED,
-        "value":canceled
+        "name": 'การยกเลิก',
+        "icon": 'cancel_circle.svg',
+        "status": OrderStatus.CANCELED,
+        "value": canceled
       },
       {
-        "name":'ให้คะแนน',
-        "icon":'star.svg',
-        "status":OrderStatus.DELIVERED,
-        "value":canReview
+        "name": 'ให้คะแนน',
+        "icon": 'star.svg',
+        "status": OrderStatus.DELIVERED,
+        "value": canReview
       },
     ]
     console.log(result);
-    
+
     return result;
   }
-  leftPad(number:number, targetLength:number):string {
+  leftPad(number: number, targetLength: number): string {
     let output = number.toString();
     while (output.length < targetLength) {
       output = '0' + output;

@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ProductImage } from './product-image.entity';
 import { ProductComment } from './product-comment.entity';
 import { ProductOption } from './product-option.entity';
+import { Category } from './category.entity';
 @Entity()
 export class Product extends BasicData {
   @Column({ type: 'varchar', nullable: false })
@@ -21,4 +22,8 @@ export class Product extends BasicData {
   comment?:ProductComment[]
   @OneToMany(()=>ProductOption, (option)=>option.product,{cascade:true})
   options?:ProductOption[]
+  @Column({ type: 'bigint', nullable: true})
+  categoryId?: number;
+  @ManyToOne(cat=>Category,cat=>cat.id)
+  category?:Category
 }
