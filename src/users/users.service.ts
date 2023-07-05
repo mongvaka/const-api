@@ -12,9 +12,11 @@ import { GetUserDto } from './dto/get-user.dto';
 import { VerifyMobileDto } from './dto/verify-mobile.dto';
 import { CreateAddressDto } from 'src/users/dto/create-address.dto';
 import { AddressDelivery } from './entities/address-delivery.entity';
+import { EditUserProfileDto } from './dto/edit-user-profile.dto';
 
 @Injectable()
 export class UsersService {
+
   async verifyMobile(dto: VerifyMobileDto) {
     const verify = await this.userRepository.findOne({select:{mobileVerify:true,},where:{id:dto.userId}})
     console.log('verify.mobileVerify',verify.mobileVerify);
@@ -135,5 +137,15 @@ export class UsersService {
   }
 
 
-
+  async editUserProfile(dto: EditUserProfileDto) {
+    console.log('dto : ',dto);
+    const model = await this.userRepository.findOne({where:{id:dto.id}})
+    console.log('model : ',model);
+    
+    model.firstName = dto.fName;
+    model.lastName = dto.lName;
+    model.updatedAt = new Date()
+    model.updatedById = dto.id
+    return this.userRepository.save(model);
+  }
 }
