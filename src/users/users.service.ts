@@ -60,7 +60,7 @@ export class UsersService {
       }
     }
     
-    ,where:{id:dto.id,address:{isPrimary:true}}})
+    ,where:{id:dto.id}})
     console.log('resunt',resunt);
     
     return resunt
