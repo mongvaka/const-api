@@ -1,8 +1,6 @@
 name: CI
 on: [push]
 jobs:
-  # test:
-  #   ...
   deploy:
     name: "Deploy to staging"
     runs-on: ubuntu-latest
