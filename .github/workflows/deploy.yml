@@ -6,6 +6,7 @@ jobs:
   deploy:
     name: "Deploy to staging"
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     # needs: test
     steps:
       - name: Configure SSH
@@ -24,8 +25,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-
-      - name: Stop the server
+    steps:
+      - name: TEST command
         run: ssh staging 'cd /api'
 
       # - name: Check out the source
