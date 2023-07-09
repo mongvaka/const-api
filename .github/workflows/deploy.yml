@@ -26,8 +26,8 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-        - name: Stop the server
-          run: ssh staging 'cd /api'
+      - name: Stop the server
+        run: ssh staging 'cd /api'
 
       # - name: Check out the source
       #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
