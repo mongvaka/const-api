@@ -18,4 +18,4 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: Connect to server
-      run: ssh root@141.98.17.93 "cd /api && pm2 stop api && git pull https://github.com/mongvaka/const-api.git && npm i --force && npm run build && pm2 start dist/main.js --name api"
+      run: ssh root@141.98.17.93 "cd api && pm2 stop api && git pull https://github.com/mongvaka/const-api.git && npm i --force && npm run build && pm2 start dist/main.js --name api"
