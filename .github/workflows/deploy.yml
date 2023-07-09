@@ -24,7 +24,7 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_HOST: b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZWQyNTUxOQAAACDO1FvZ7JONyC0pMSRnIz2HTsENEJZr5c7VWSLH9lGUogAAAJi8LMxBvCzMQQAAAAtzc2gtZWQyNTUxOQAAACDO1FvZ7JONyC0pMSRnIz2HTsENEJZr5c7VWSLH9lGUogAAAEAZ7G10jBfKPCJzZRmBXxwLBQRyQJUay2HE7WfC8c70G87UW9nsk3ILSkxJGcjPYdOwQ0QlmvlztVZIsf2UZSiAAAAE3Nhbml0LnZha0BnbWFpbC5jb20BAg==
 
       - name: Stop the server
         run: ssh staging 'cd /api'
