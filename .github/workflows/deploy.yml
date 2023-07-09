@@ -1,26 +1,23 @@
-name: CI
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+  
 jobs:
-  # test:
-  #   ...
-  deploy:
-    name: "Deploy to staging"
+  run_pull:
+    name: run pull
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    # needs: test
+    
     steps:
-      - name: Configure SSH
-        run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-          cat ~/.ssh/id_rsa
-      - name: ssh to server
-        run: ssh root@141.98.17.93
-
-      # - name: Check out the source
-      #   run: ssh staging 'cd my-application && git fetch && git reset --hard origin/master'
-
-      # - name: Start the server
-      #   if: ${{ always() }}
-      #   run: ssh staging 'sudo systemctl start my-application'
+    - name: install ssh keys
+      # check this thread to understand why its needed:
+      # https://stackoverflow.com/a/70447517
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH__KEY }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    - name: connect and pull
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+    - name: cleanup
+      run: rm -rf ~/.ssh
