@@ -17,7 +17,13 @@ jobs:
         install -m 600 -D /dev/null ~/.ssh/id_rsa
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-    - name: connect and pull
+    - name: Connect to server
       run: ssh root@141.98.17.93
-    # - name: cleanup
-    #   run: rm -rf ~/.ssh
+    - name: Go to Directory
+      run: cd /api
+    # - name: Stop service
+    #   run: cd /api
+    # - name: Pull Repository
+    #   run: cd /api
+    # - name: Pull Repository
+    #   run: cd /api
