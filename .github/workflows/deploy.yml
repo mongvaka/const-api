@@ -1,21 +1,3 @@
-name: Remote update execution
-on:
-  push:
-    branches:
-      - master
-jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        script: whoami
-
 name: CI
 on: [push]
 jobs:
