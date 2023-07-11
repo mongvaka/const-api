@@ -102,6 +102,9 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
       },
       where: {
         main: { ownerId: dto.ownerId }
+      },
+      order:{
+        name:'ASC'
       }
     });
     return getRespones(data,dto);
@@ -132,14 +135,14 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
         return [{ isManual: true, mainId: id, pin: 4, status: 1, name: 'switch1', id: undefined }]
         case EspType.V8:
           return [
-            { isManual: true, mainId: id, pin: 16, status: 1, name: 'ตัวควบคุม1', id: undefined },
-            { isManual: true, mainId: id, pin: 14, status: 1, name: 'ตัวควบคุม2', id: undefined },
-            { isManual: true, mainId: id, pin: 12, status: 1, name: 'ตัวควบคุม3', id: undefined },
-            { isManual: true, mainId: id, pin: 13, status: 1, name: 'ตัวควบคุม4', id: undefined },
-            { isManual: true, mainId: id, pin: 15, status: 1, name: 'ตัวควบคุม5', id: undefined },
-            { isManual: true, mainId: id, pin: 0, status: 1, name: 'ตัวควบคุม6', id: undefined },
-            { isManual: true, mainId: id, pin: 4, status: 1, name: 'ตัวควบคุม7', id: undefined },
-            { isManual: true, mainId: id, pin: 5, status: 1, name: 'ตัวควบคุม8', id: undefined },
+            { isManual: true, mainId: id, pin: 16, status: 0, name: 'ตัวควบคุม1', id: undefined },
+            { isManual: true, mainId: id, pin: 14, status: 0, name: 'ตัวควบคุม2', id: undefined },
+            { isManual: true, mainId: id, pin: 12, status: 0, name: 'ตัวควบคุม3', id: undefined },
+            { isManual: true, mainId: id, pin: 13, status: 0, name: 'ตัวควบคุม4', id: undefined },
+            { isManual: true, mainId: id, pin: 15, status: 0, name: 'ตัวควบคุม5', id: undefined },
+            { isManual: true, mainId: id, pin: 0, status: 0, name: 'ตัวควบคุม6', id: undefined },
+            { isManual: true, mainId: id, pin: 4, status: 0, name: 'ตัวควบคุม7', id: undefined },
+            { isManual: true, mainId: id, pin: 5, status: 0, name: 'ตัวควบคุม8', id: undefined },
           ]
       default:
         return []
