@@ -176,6 +176,8 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
     this.server.emit('hola', { header: 'headerText', detail: 'detailText' });
   }
   async preActivate(dto: PreActivateDto) {
+    console.log('this dto',dto);
+    
     const m = await this.espMainRepository.find({
       relations:[
         'owner'
@@ -195,7 +197,7 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
     }
     )
     console.log(m);
-    
+    console.log('this dto',dto.keys);
     return m;
 
   }
