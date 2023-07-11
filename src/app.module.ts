@@ -34,7 +34,7 @@ import { ImageModule } from './images/images.module';
           synchronize: true,
           entities: [entitiesPath],
           migrations: [migrationPath],
-          logging: false,
+          logging: true,
         };
       },
     }),
