@@ -12,10 +12,15 @@ import { EspSchedule } from './entities/esp-schedule.entity';
 import { UsersService } from 'src/users/users.service';
 import { getRespones } from 'src/shared/functions/respone-function';
 import { SendChatDto } from 'src/supports/dto/send-chat-message.dto';
+import { TestEmitDto } from './dto/test-emit.dto';
 
 @Injectable()
 @WebSocketGateway()
 export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+  async sendMessage(dto: TestEmitDto) {
+    this.server.emit(dto.emitKey, {message:dto.message});
+    return true
+  }
   async deleteSchedule(dto: DeleteSheduleDto) {
     return this.espChildrenRepository.remove(
       await this.espChildrenRepository.findOne({ where: { id: dto.id } })

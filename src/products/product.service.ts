@@ -21,9 +21,15 @@ import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CountBucketDto } from './dto/count-bucket.dto';
 import { Category } from './entities/category.entity';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
 export class ProductService {
+  async createCategory(dto: CreateCategoryDto) {
+    return this.categoryRepository.save(
+      this.categoryRepository.create(dto)
+    )
+  }
   async countBucket(dto: CountBucketDto) {
     return this.bucketRepository.count({ where: { buyerId: dto.userId } })
   }

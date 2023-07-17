@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { EspService } from './esp.service';
 import { ActivateDto, ChildDto, CreateSheduleDto, DeleteSheduleDto, EspChildSearchDto, EspRegisterDto, PreActivateDto, SwitchDto, SwitchStatusDto } from './dto/esp-register.dto';
 import { JwtAuthGuard } from 'src/users/jwt-auth.guard';
+import { TestEmitDto } from './dto/test-emit.dto';
 @ApiTags('Esp')
 @UseGuards(JwtAuthGuard)
 @Controller('esp')
@@ -37,10 +38,10 @@ export class EspController {
   switchStatus(@Body() dto: SwitchStatusDto) {
     return this.espService.switchStatus(dto);
   }
-  // @Post('send-message')
-  // sendMessage() {
-  //   return this.espService.sendMessage();
-  // }
+  @Post('send-message')
+  sendMessage(@Body() dto: TestEmitDto) {
+    return this.espService.sendMessage(dto);
+  }
   @Post('pre-activate')
   preActivate(@Body() dto: PreActivateDto) {
     return this.espService.preActivate(dto);
