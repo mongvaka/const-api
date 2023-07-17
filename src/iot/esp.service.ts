@@ -13,6 +13,7 @@ import { UsersService } from 'src/users/users.service';
 import { getRespones } from 'src/shared/functions/respone-function';
 import { SendChatDto } from 'src/supports/dto/send-chat-message.dto';
 import { TestEmitDto } from './dto/test-emit.dto';
+import { TimeAutoDto } from './dto/time-auto.dto';
 
 @Injectable()
 @WebSocketGateway()
@@ -36,7 +37,11 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
 
   }
   async createSchedule(dto: CreateSheduleDto) {
-    const modelMain = await this.espChildrenRepository.findOne({ where: { id: dto.id } })
+    const modelMain = await this.espChildrenRepository.findOne({ relations:['main'],where: { id: dto.id } })
+    // const modelMaster = await this.espMainRepository.findOne({where:{id:modelMain.mainId}})
+    // const allMaster = await this.espMainRepository.find({where:{ownerId:modelMaster.ownerId}})
+    // const
+
     modelMain.isManual = dto.isManual
     modelMain.name = dto.name
     modelMain.schedule = dto.schedule.map((m) => {
@@ -45,7 +50,34 @@ export class EspService implements OnGatewayConnection, OnGatewayDisconnect, OnG
         endTime: m.endTime
       }
     })
-    return this.espChildrenRepository.save(modelMain)
+    const result = this.espChildrenRepository.save(modelMain)
+    const allMain = await this.espMainRepository.find({relations:['childrent','childrent.schedule'],where:{ownerId:modelMain.main.ownerId}})
+    let timeAuto:TimeAutoDto[] = [];
+    allMain.forEach(main=>{
+      timeAuto = []
+      main.childrent.forEach(child=>{
+        if(child.isManual == false){
+          child.schedule.forEach(sch=>{
+            timeAuto.push(
+              {
+                pin:child.pin,
+                startTime:this.getTimeForEsp(sch.startTime) ,
+                endTime:this.getTimeForEsp(sch.endTime)
+              }
+            )
+          })
+
+
+        }
+      })
+      this.server.emit(`${main.key}auto`, { schedule: timeAuto });
+    })
+    return result;
+
+  }
+  getTimeForEsp(time: string): number {
+    const t: string[] = time.split(':');
+    return (((+t[0])*60)+(+t[1]));
   }
   async childById(dto: ChildDto) {
     return this.espChildrenRepository.findOne({
