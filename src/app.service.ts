@@ -13,6 +13,6 @@ export class AppService {
   //    return 'Ok'
   // }
   getHello(): string {
-    return 'Hello World test ssh deploy hello auto13';
+    return 'Hello World test ssh deploy hello This friday';
   }
 }
