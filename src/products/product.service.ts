@@ -137,7 +137,8 @@ export class ProductService {
   }
   async createProduct(dto: CreateProductDto) {
     let model: Product = {
-      ...dto    }
+      ...dto   
+    }
     return this.productRepository.save(this.productRepository.create(model))
   }
   async updateProduct(dto: UpdateProductDto) {
