@@ -18,6 +18,7 @@ import { DeleteProductInBucket } from './dto/delete-product-in-bucket';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CountBucketDto } from './dto/count-bucket.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateImageProductDto } from './dto/create-image-product.dto';
 @ApiTags('Product')
 @UseGuards(JwtAuthGuard)
 @Controller('product')
@@ -47,6 +48,10 @@ export class ProductController {
   @Post('search-product')
   searchProduct(@Body() dto:ProductSearchDto) {
     return this.productService.searchProduct(dto);
+  }
+  @Post('create-image-product')
+  createImageProduct(@Body() dto:CreateImageProductDto) {
+    return this.productService.createImageProduct(dto);
   }
   @Post('product-detail')
   productDetail(@Body() dto:ProductDetailDto) {

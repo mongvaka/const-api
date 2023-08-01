@@ -22,9 +22,32 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { CountBucketDto } from './dto/count-bucket.dto';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateImageProductDto } from './dto/create-image-product.dto';
 
 @Injectable()
 export class ProductService {
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(Bucket)
+    private readonly bucketRepository: Repository<Bucket>,
+    @InjectRepository(ProductImage)
+    private readonly productImageRepository: Repository<ProductImage>,
+  ) {
+
+  }
+  async createImageProduct(dto: CreateImageProductDto) {
+    const model:ProductImage = {
+      ...dto
+    }
+    return this.productImageRepository.save(
+      this.productImageRepository.create(model)
+    )
+  }
   async createCategory(dto: CreateCategoryDto) {
     return this.categoryRepository.save(
       this.categoryRepository.create(dto)
@@ -37,20 +60,6 @@ export class ProductService {
     return this.bucketRepository.remove(
       await this.bucketRepository.findOne({ where: { ...dto } })
     )
-  }
-
-
-  constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
-    @InjectRepository(Bucket)
-    private readonly bucketRepository: Repository<Bucket>,
-  ) {
-
   }
   async searchProduct(dto: ProductSearchDto) {
     const data = await this.productRepository.find({
