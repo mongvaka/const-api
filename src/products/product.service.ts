@@ -23,6 +23,7 @@ import { CountBucketDto } from './dto/count-bucket.dto';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CreateImageProductDto } from './dto/create-image-product.dto';
+import { ProductOption } from './entities/product-option.entity';
 
 @Injectable()
 export class ProductService {
@@ -37,6 +38,8 @@ export class ProductService {
     private readonly bucketRepository: Repository<Bucket>,
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
+    @InjectRepository(ProductOption)
+    private readonly productOptionRepository: Repository<ProductOption>,
   ) {
 
   }
@@ -135,11 +138,15 @@ export class ProductService {
     return model[0]
 
   }
-  async createProduct(dto: CreateProductDto) {
+  async createProduct(dto: CreateProductDto) {    
     let model: Product = {
-      ...dto   
-    }
-    return this.productRepository.save(this.productRepository.create(model))
+      ...dto ,
+      options:[]
+    }    
+    const product = await this.productRepository.save(this.productRepository.create(model))
+    const options = await this.productOptionRepository.save(this.productOptionRepository.create(dto.options.map(m=>{return {name:m.name,price:m.price,productId:product.id}})))
+    product.options = options
+    return product;
   }
   async updateProduct(dto: UpdateProductDto) {
     let model = await this.productRepository.findOne({ where: { id: dto.id } })
