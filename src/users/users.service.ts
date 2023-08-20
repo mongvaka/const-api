@@ -13,13 +13,37 @@ import { VerifyMobileDto } from './dto/verify-mobile.dto';
 import { CreateAddressDto } from 'src/users/dto/create-address.dto';
 import { AddressDelivery } from './entities/address-delivery.entity';
 import { EditUserProfileDto } from './dto/edit-user-profile.dto';
+import { GetSensorDto } from './dto/get-sensor.dto';
+import { SensorResponse } from './response/sensor.response';
+import { EspMain } from 'src/iot/entities/esp-main.entity';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository:Repository<User>,
+    @InjectRepository(AddressDelivery)
+    private readonly addressDeliveryRepository:Repository<AddressDelivery>,
+    @InjectRepository(EspMain)
+    private readonly espMainRepository:Repository<EspMain>,
+    private readonly jwtService: JwtService
+
+  ){
+
+  }
+  async getSensor(dto: GetSensorDto) {
+    const model: SensorResponse = new SensorResponse();
+    const dataPure = await this.espMainRepository.find({ relations:['childrent'],where:{ownerId:dto.userId}})
+    model.controllerCount =dataPure[0]?.childrent.length??0;
+    model.homSensor = 0;
+    model.lightSensor = 0;
+    model.tempSensor = 0;
+    model.sensorCount = 0;
+    return model;
+  }
 
   async verifyMobile(dto: VerifyMobileDto) {
     const verify = await this.userRepository.findOne({select:{mobileVerify:true,},where:{id:dto.userId}})
-    console.log('verify.mobileVerify',verify.mobileVerify);
     return verify.mobileVerify
   }
   async getUser(dto: GetUserDto) {
@@ -87,16 +111,7 @@ export class UsersService {
     }
     throw Error('ไม่พบผู้ใช้')
   }
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository:Repository<User>,
-    @InjectRepository(AddressDelivery)
-    private readonly addressDeliveryRepository:Repository<AddressDelivery>,
-    private readonly jwtService: JwtService
 
-  ){
-
-  }
   async register(dto: RegisterDto) {
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(dto.password, salt);

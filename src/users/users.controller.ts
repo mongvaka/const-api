@@ -9,6 +9,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { VerifyMobileDto } from './dto/verify-mobile.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { EditUserProfileDto } from './dto/edit-user-profile.dto';
+import { GetSensorDto } from './dto/get-sensor.dto';
 @ApiTags('Authen')
 @Controller('users')
 export class UsersController {
@@ -37,5 +38,9 @@ export class UsersController {
   @Post('edit-user-profile')
   editUserProfile( @Body() dto: EditUserProfileDto) {    
     return this.usersService.editUserProfile(dto);
+  }
+  @Post('all-sensor')
+  getSensor( @Body() dto: GetSensorDto) {
+    return this.usersService.getSensor(dto);
   }
 }
