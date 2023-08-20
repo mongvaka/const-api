@@ -6,10 +6,11 @@ import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt-strategy';
 import { AddressDelivery } from './entities/address-delivery.entity';
+import { EspMain } from 'src/iot/entities/esp-main.entity';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([User,AddressDelivery]),
+    TypeOrmModule.forFeature([User,AddressDelivery,EspMain]),
     JwtModule.register({
       secret: 'clEciwpf4p',
     })
